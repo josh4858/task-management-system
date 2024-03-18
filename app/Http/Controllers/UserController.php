@@ -8,6 +8,8 @@ use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\RegisterUserRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
+
 
 class UserController extends Controller
 {
@@ -102,7 +104,7 @@ class UserController extends Controller
 
             // Now we must return the token
             return response()->json([
-                'message' => "Successfully Logged in!"
+                'message' => "Successfully Logged in!",
                 'token' => $token
             
             ],200);
@@ -115,21 +117,29 @@ class UserController extends Controller
     // Logout
     public function logout(Request $request) {
 
-        // Revoke the request
-        $request()->user()->token()->revoke();
+        // Get the token from the request
+        $token = JWTAuth::getToken();
+        
+        if($token) {
+            // Invalidate JWT token
+            JWTAuth::invalidate($token);
+        }
         // Return success message
         return response()->json(['message' => 'Successfully logged out!',200]);
 
     }
 
-    // Refresh Token
     public function refresh(Request $request) {
-        $user = $request->user();
-        // Create a new token
-        $token = $user->createToken("MyAppToken")->accessToken;
-
+        // Refresh the token
+        $newToken = JWTAuth::refresh(JWTAuth::getToken());
+        
         // return token
-        return response->json(['token' => $token],200);
+        return response->json([
+            'message' => 'Token refreshed successfully',
+            'token' => $token
+            
+            ]
+            ,200);
     }
 
 

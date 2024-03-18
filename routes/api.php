@@ -45,5 +45,5 @@ Route::group(['middleware' => ['auth:api']], function() {
 // Unprotected routes which use will have throttles to prevent abuse
 Route::post('/register',[UserController::class,'register']);
 Route::post('/login',[UserController::class,'authenticate']);
-
+Route::post('/logout', [UserController::class,'logout']);
 
