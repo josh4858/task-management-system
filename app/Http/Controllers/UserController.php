@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Requests\UserStoreRequest;
+use App\Http\Requests\RegisterUserRequest;
 
 class UserController extends Controller
 {
@@ -58,4 +59,59 @@ class UserController extends Controller
         $userToRemove->delete(); // Delete the user
         return response()->json(null, 204); // return response back
     }
+
+
+    // Authentication Methods
+
+    // Register new user
+    public function(RegisterUserRequest $request){
+        // Checks input from request is valid
+        $validator = $request->validated();
+        // check if registration fails
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()] 400);
+        }
+
+        return response()->json(['message'=> 'User registered successfully']);
+    }
+
+    // Login (authenticate the user and return back a token)
+    public function authenticate(Request $request) {
+
+        $credentials = $request->only('email', 'password');
+
+        // Check the auth credentials
+        if(Auth::attempt($credentials)){
+            $user = Auth::user();
+            $token = $user->createToken("MyAppToken")->accessToken;
+
+            // Now we must return the token
+            return response()->json(['token' => $token],200);
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+    }
+
+    // Logout
+    public function logout(Request $request) {
+
+        // Revoke the request
+        $request()->user()->token()->revoke();
+        // Return success message
+        return response()->json(['message' => 'Successfully logged out!',200]);
+
+    }
+
+    // Refresh Token
+    public function refresh(Request $request) {
+        $user = $request->user();
+        // Create a new token
+        $token = $user->createToken("MyAppToken")->accessToken;
+
+        // return token
+        return response->json(['token' => $token],200);
+    }
+
+
 }
