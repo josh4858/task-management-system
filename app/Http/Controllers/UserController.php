@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\RegisterUserRequest;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -60,33 +62,50 @@ class UserController extends Controller
         return response()->json(null, 204); // return response back
     }
 
-
-    // Authentication Methods
-
-    // Register new user
-    public function(RegisterUserRequest $request){
+    public function register(RegisterUserRequest $request){
         // Checks input from request is valid
-        $validator = $request->validated();
-        // check if registration fails
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()] 400);
+        $validatedData = $request->validated();
+        // Create the user
+        $user = User::create([
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            'password' => Hash::make($validatedData['password']),
+            'role_id' => 2, // User by default
+            
+        ]);
+
+        // Attempt to generate a new token for the given user using unique id
+        $token = Auth::guard('api')->tokenById($user->id);
+
+        if (!$token) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        return response()->json(['message'=> 'User registered successfully']);
+
+        return response()->json([
+            'message'=> 'User registered successfully',
+            'token' => $token
+        
+        ], 201);
     }
 
     // Login (authenticate the user and return back a token)
-    public function authenticate(Request $request) {
+    public function authenticate (Request $request) {
 
         $credentials = $request->only('email', 'password');
 
         // Check the auth credentials
         if(Auth::attempt($credentials)){
             $user = Auth::user();
-            $token = $user->createToken("MyAppToken")->accessToken;
+            // Generates a new stateless JWT token
+            $token = Auth::guard('api')->tokenById($user->id);
 
             // Now we must return the token
-            return response()->json(['token' => $token],200);
+            return response()->json([
+                'message' => "Successfully Logged in!"
+                'token' => $token
+            
+            ],200);
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
