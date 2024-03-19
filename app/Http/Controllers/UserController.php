@@ -9,6 +9,7 @@ use App\Http\Requests\RegisterUserRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Jobs\SendWelcomeEmail;
 
 
 class UserController extends Controller
@@ -86,6 +87,9 @@ class UserController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
+        // Dispatch new email for new user
+        dispatch(new SendWelcomeEmail($user));
+
 
         return response()->json([
             'message'=> 'User registered successfully',
@@ -146,7 +150,7 @@ class UserController extends Controller
     public function userDetails(Request $request) {
         // return only the details of the auth user in question
         $user = $request->user();
-        
+
         return response()->json(['User details' => $user], 200);
     }
 
