@@ -56,18 +56,17 @@ Route::group(['middleware' => ['auth:api']], function() {
     Route::group(['middleware' => ['checkRole:user']], function() {
         Route::get('/user_details',[UserController::class,'userDetails']);
         Route::get('/user_tasks',[TaskController::class,'userTasks']);
+        
         // Additional Routes coming soon
         /*
             2.) User will be able to set state of task, e.g is completed or not.
         */
     });
-
-
-
 });
 
-// Unprotected routes which use will have throttles to prevent abuse
-Route::post('/register',[UserController::class,'register']);
-Route::post('/login',[UserController::class,'authenticate']);
-Route::post('/logout', [UserController::class,'logout']);
-
+// Unprotected routes which use will have throttles to prevent abuse (60 requests per min)
+Route::middleware('throttle:60,1')->group(function () {
+    Route::post('/register', [UserController::class, 'register']);
+    Route::post('/login', [UserController::class, 'authenticate']);
+    Route::post('/logout', [UserController::class, 'logout']);
+});
