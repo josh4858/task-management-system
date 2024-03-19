@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Role;
 
 class RoleController extends Controller
 {
@@ -11,7 +12,8 @@ class RoleController extends Controller
      */
     public function index()
     {
-        //
+        // Returns all roles for Admin to see
+        return Role::all();
     }
 
     /**
@@ -61,4 +63,6 @@ class RoleController extends Controller
     {
         //
     }
+
+
 }

@@ -64,6 +64,9 @@ class UserController extends Controller
         return response()->json(null, 204); // return response back
     }
 
+
+    // Authentication Functions for User
+
     public function register(RegisterUserRequest $request){
         // Checks input from request is valid
         $validatedData = $request->validated();
@@ -90,7 +93,6 @@ class UserController extends Controller
         
         ], 201);
     }
-
     // Login (authenticate the user and return back a token)
     public function authenticate (Request $request) {
 
@@ -113,7 +115,6 @@ class UserController extends Controller
         }
 
     }
-
     // Logout
     public function logout(Request $request) {
 
@@ -128,7 +129,6 @@ class UserController extends Controller
         return response()->json(['message' => 'Successfully logged out!',200]);
 
     }
-
     public function refresh(Request $request) {
         // Refresh the token
         $newToken = JWTAuth::refresh(JWTAuth::getToken());
@@ -140,6 +140,14 @@ class UserController extends Controller
             
             ]
             ,200);
+    }
+
+    // User Role Specific Functions
+    public function userDetails(Request $request) {
+        // return only the details of the auth user in question
+        $user = $request->user();
+        
+        return response()->json(['User details' => $user], 200);
     }
 
 

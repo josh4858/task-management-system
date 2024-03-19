@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Models\Task;
 use App\Http\Requests\TaskRequest;
 
@@ -64,5 +65,20 @@ class TaskController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    // Specific User Role based functions
+    public function userTasks(Request $request) {
+        // Returns all the tasks for the auth user
+        $user = $request->user();
+        Log::info('Users Tasks User ID ', array($user->id));
+        $userTasks = Task::where("user_id", $user->id)->get();
+
+        return response()->json(
+            ['Tasks' => $userTasks],
+            200
+
+        );
+
     }
 }
