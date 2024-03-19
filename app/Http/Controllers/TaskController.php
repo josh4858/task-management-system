@@ -71,14 +71,9 @@ class TaskController extends Controller
     public function userTasks(Request $request) {
         // Returns all the tasks for the auth user
         $user = $request->user();
-        Log::info('Users Tasks User ID ', array($user->id));
         $userTasks = Task::where("user_id", $user->id)->get();
 
-        return response()->json(
-            ['Tasks' => $userTasks],
-            200
-
-        );
+        return response()->json(['Tasks' => $userTasks],200);
 
     }
 }
