@@ -30,7 +30,7 @@ class UserController extends Controller
     {
         try {
             $user = User::findOrFail($id);
-            return response()->json($user, 201);
+            return response()->json($user, 200);
 
         } catch (ModelNotFoundException $exception) {
             

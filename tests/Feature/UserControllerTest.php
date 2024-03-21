@@ -14,23 +14,44 @@ class UserControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function can_get_all_users_successfully() {
+    // Define the constant names
 
-        // Seed the roles table before the test
+    const ADMIN = 1;
+    const USER = 2;
+    protected $user;
+
+    public function prepDatabaseAndAuthUser($role_id) {
+        // This function will prepare the database and get the acting user ready
         $this->seed(RoleSeeder::class);
-        // Seed the users table before the test
+        // Seed the user table with some temp data
         $this->seed(UserSeeder::class);
+        // Simulate a test as an ADMIN user, this won't work for a standard user
+        $this->user = User::factory()->create(['role_id' => $role_id]);
+    
+        // Authenticate the user and obtain the auth token
+        $token = auth()->login($this->user);
+    
+        // Store the token in the request headers for subsequent requests 
+        $this->withHeaders(['Authorization' => 'Bearer ' . $token]);
+    
+        // Return $this to ensure method chaining works correctly
+        return $this;
+    }
+    
 
-        // Simulate test as an admin user, This will create a mock admin user
-        $admin = User::factory()->create(['role_id' => 1]);
-        $this->actingAs($admin);
+
+    /** @test */
+    public function can_admin_get_all_users_successfully() {
+
+        // User the prep function to prepare the user for this function
+        $this->prepDatabaseAndAuthUser(self::ADMIN);
 
         // Check the count of users before the test
         $userCountBefore = User::count();
 
         // Act:: Send GET request to get user data
-        $response = $this->getJson('/api/users');
+        // $response = $this->getJson('/api/users');
+        $response = $this->actingAs($this->user)->getJson('/api/users'); 
         
         // Assert: Check the response status and structure
         $response->assertStatus(201);
@@ -42,6 +63,32 @@ class UserControllerTest extends TestCase
         $this->assertEquals($userCountBefore, $userCountAfter);
     }
 
+    /** @test */
+
+    public function can_admin_get_a_single_user() {
+        // Only the ADMIN is able to get a single user 
+        $this->prepDatabaseAndAuthUser(self::ADMIN);
+
+        // ACT: Send GET request to get a single user
+        $response = $this->actingAs($this->user)->getJson('/api/users/1'); // this will get the first user as ADMIN
+
+        // Assert: Check response status
+        $response->assertStatus(200);
+        
+    }
+
+    /** @test */
+    public function can_admin_user_log_in_successfully() {
+        // Add a test user to the database
+        $this->prepDatabaseAndAuthUser(self::ADMIN);
+        // Attempt to login via the endpoint
+        $response = $this->postJson('/api/login',[
+            'email' => $this->user->email,
+            'password' => 'password',
+        ]);
+        // Capture response and assert Json returns success code and token
+        $response->assertStatus(200);
+    }
     /** @test */
     public function user_can_register_successfully()
     {
