@@ -23,19 +23,19 @@ Route::group(['middleware' => ['auth:api']], function() {
 
     // Role API routes (Only Admins are authorised to use these routes)
     Route::group(['middleware' => ['checkRole:admin']], function () {
+
+        // Protected User Routes Admin only
+        Route::get('/users', [UserController::class, 'index']);
+        Route::get('/users/{id}',[UserController::class,'show']);
+        Route::put('/users/{id}',[UserController::class,'update']);
+        Route::delete('/users/{id}', [UserController::class, 'destroy']);
+
         Route::get('/roles',[RoleController::class,'index']);
         Route::post('/roles',[RoleController::class,'store']);
         Route::get('/roles/{id}',[RoleController::class,'show']);
         Route::put('/roles/{id}',[RoleController::class,'update']);
         Route::delete('/roles/{id}',[RoleController::class,'destroy']);
     
-        // Protected User Routes Admin only
-        Route::get('/users', [UserController::class, 'index']);
-        Route::post('/users', [UserController::class, 'store']);
-        Route::get('/users/{id}',[UserController::class,'show']);
-        Route::put('/users/{id}',[UserController::class,'update']);
-        Route::delete('/users/{id}', [UserController::class, 'destroy']);
-
         // To use these routes you have to be authenticated 
         Route::get('/tasks',[TaskController::class,'index']);
         Route::post('/tasks',[TaskController::class,'store']);

@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Http\Requests\UserStoreRequest;
-use App\Http\Requests\RegisterUserRequest;
+use App\Http\Requests\UserRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Jobs\SendWelcomeEmail;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 
 class UserController extends Controller
@@ -20,18 +20,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::all();
-        return response()->json($users);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(UserStoreRequest $request)
-    {
-        $validated = $request->validated();
-   
-        $newUser = User::create($validated->all());
-        return response()->json($newUser,201);
+        return response()->json($users,201);
     }
 
     /**
@@ -39,14 +28,20 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::findOrFail($id);
-        return response()->json($user, 201);
+        try {
+            $user = User::findOrFail($id);
+            return response()->json($user, 201);
+
+        } catch (ModelNotFoundException $exception) {
+            
+            return response()->json(['message' => 'User not found!'], 404);
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UserStoreRequest $request, $id)
+    public function update(UserRequest $request, $id)
     {
         $validated = $request->validated();
         $user = User::findOrFail($id); // Attempts to get the user
@@ -65,10 +60,8 @@ class UserController extends Controller
         return response()->json(null, 204); // return response back
     }
 
-
     // Authentication Functions for User
-
-    public function register(RegisterUserRequest $request){
+    public function register(UserRequest $request){
         // Checks input from request is valid
         $validatedData = $request->validated();
         // Create the user
@@ -133,6 +126,8 @@ class UserController extends Controller
         return response()->json(['message' => 'Successfully logged out!',200]);
 
     }
+
+
     public function refresh(Request $request) {
         // Refresh the token
         $newToken = JWTAuth::refresh(JWTAuth::getToken());
@@ -148,9 +143,8 @@ class UserController extends Controller
 
     // User Role Specific Functions
     public function userDetails(Request $request) {
-        // return only the details of the auth user in question
+        // Return only the details of the auth user in question
         $user = $request->user();
-
         return response()->json(['User details' => $user], 200);
     }
 

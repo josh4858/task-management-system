@@ -43,20 +43,23 @@ class TaskController extends Controller
         return response()->json($task,200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
     {
-        //
+        // Validate the task data coming in
+        $validatedData = $request->validated();
+        // Try and find the task to update
+        $task = Task::findOrFail($id);
+        // Update the task
+        $task->update($validatedData);
+        // Return response
+        return response()->json([
+            'message' => 'Successfully updated task',
+            'task' => $task,
+        ], 201);
     }
 
     /**
@@ -64,15 +67,20 @@ class TaskController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        // Find the task by its id and delete if exists
+        $taskToDelete = Task::findOrFail($id);
+        // Delete the task
+        $taskToDelete->delete();
+        // return the response 
+        return response()->json(null, 204);
     }
 
-    // Specific User Role based functions
     public function userTasks(Request $request) {
         // Returns all the tasks for the auth user
         $user = $request->user();
+        // Return all the tasks associated with the user.
         $userTasks = Task::where("user_id", $user->id)->get();
-
+        // Return sucess response
         return response()->json(['Tasks' => $userTasks],200);
 
     }
