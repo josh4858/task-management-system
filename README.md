@@ -1,4 +1,5 @@
-Overview 
+Overview:
+
 This Laravel Task Management API project demonstrates the implementation of various key features commonly used in web applications, including middleware, models, Eloquent relationships, database migrations, controllers, queues, routes, data sanitization with Request classes, authentication with token-based JWT, throttling for protecting against DDoS attacks and abuse, authorization with role-based access control middleware applied to authenticated user routes for finer access control, and the use of Mailtrap for handling emails with queues. This project serves as a comprehensive demonstration of building a RESTful API using Laravel, incorporating best practices for security, performance, and maintainability. It showcases the implementation of various features and techniques commonly used in real-world web applications. This project highlights my ability to use a simple example project and covers a range of concepts for Intermediate to Advanced Level understanding.
 
 Features : ==================================================================================================================================================
