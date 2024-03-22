@@ -48,6 +48,10 @@ Use of Mailtrap Emails with Queues
 
     Mailtrap is used for handling email communication within the application. Emails are sent asynchronously using queues to improve performance and reliability.
 
+Feature Tests using PHPUnit
+
+    Feature tests to test the robustness of the application to ensure code quality and stability.
+
 Usage: ===================================================================================================================================================================================================================
 
 Prerequisites
