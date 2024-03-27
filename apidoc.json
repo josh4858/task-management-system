@@ -1,0 +1,23 @@
+{
+    "name": "TMA - Task Management API",
+    "version": "1.0.0",
+    "author" : "Joshua Lloyd",
+    "description": "A Role based, Token based Task Management API",
+    "title": "Task Management API",
+    "url": "http://localhost:8000",
+    "sampleUrl": "http://localhost:8000",
+    "header": {
+      "title": "Authorization",
+      "content": "Bearer YOUR_ACCESS_TOKEN"
+    },
+    "footer": "Your API Footer",
+    "template": {
+      "withCompare": true,
+      "withGenerator": true
+    },
+    "exclude": [
+      "node_modules/",
+      "public/"
+    ]
+  }
+  

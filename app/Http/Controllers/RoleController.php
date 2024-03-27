@@ -64,11 +64,13 @@ class RoleController extends Controller
      */
     public function destroy(string $id)
     {
-        // Find the role to delete
+        //  the role to delete
         $roleToDelete = Role::findOrFail($id);
         // Delete role
         $roleToDelete->delete();
         // return response
         return response()->json($roleToDelete,204);
     }
+
+
 }
