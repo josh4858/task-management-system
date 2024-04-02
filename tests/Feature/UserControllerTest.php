@@ -20,7 +20,7 @@ class UserControllerTest extends TestCase
     const USER = "user";
     protected $user;
 
-    public function prepDatabaseAndAuthUser($role_name) {
+    public function prepDatabaseAndAuthActingUser($role_name) {
         // This function will prepare the database and get the acting user ready
         $this->seed(RoleSeeder::class);
         // Seed the user table with some temp data
@@ -41,10 +41,6 @@ class UserControllerTest extends TestCase
         return $this;
     }
     
-
-
-
-
 
     /** @test */
     public function user_can_register_successfully()
@@ -79,7 +75,7 @@ class UserControllerTest extends TestCase
         /** @test */
         public function can_admin_user_log_in_successfully() {
             // Add a test user to the database
-            $this->prepDatabaseAndAuthUser(self::ADMIN);
+            $this->prepDatabaseAndAuthActingUser(self::ADMIN);
             // Attempt to login via the endpoint
             $response = $this->postJson('/api/login',[
                 'email' => $this->user->email,
@@ -93,13 +89,13 @@ class UserControllerTest extends TestCase
     public function can_admin_get_all_users_successfully() {
 
         // User the prep function to prepare the user for this function
-        $this->prepDatabaseAndAuthUser(self::ADMIN);
+        $this->prepDatabaseAndAuthActingUser(self::ADMIN);
 
         // Check the count of users before the test
         $userCountBefore = User::count();
 
         // Act:: Send GET request to get user data
-        // $response = $this->getJson('/api/users');
+  
         $response = $this->actingAs($this->user)->getJson('/api/users'); 
         
         // Assert: Check the response status and structure
@@ -115,19 +111,69 @@ class UserControllerTest extends TestCase
     /** @test */
 
     public function can_admin_get_a_single_user() {
-        // Only the ADMIN is able to get a single user 
-        $this->prepDatabaseAndAuthUser(self::ADMIN);
+         // Prep the acting user for test as ADMIN
+        $this->prepDatabaseAndAuthActingUser(self::ADMIN);
 
         // Get random seeded admin user 
-        $randAdminUser = User::whereHas('role', function($query) {
+        $randAdmin = User::whereHas('role', function($query) {
             $query->where('name','admin');
         })->inRandomOrder()->first();
 
         // ACT: Send GET request to get a single user
-        $response = $this->actingAs($this->user)->getJson('/api/users/'.$randAdminUser->id); 
+        $response = $this->actingAs($this->user)->getJson('/api/users/'.$randAdmin->id); 
 
         // Assert: Check response status
         $response->assertStatus(200);
         
+    }
+
+    /** @test */
+    public function can_admin_delete_a_test_user() {
+        // Prep the acting user for test as ADMIN
+        $this->prepDatabaseAndAuthActingUser(self::ADMIN);
+
+        // Get a random user with user role 
+        $randUser = User::whereHas('role',function($query) {
+            $query->where('name','user');
+        })->inRandomOrder()->first();
+        
+        // ACT:: send delete request to delete a single user
+        $response = $this->actingAs($this->user)->deleteJson('/api/users/'.$randUser->id);
+        // Assert response is 204 meaning sucessfully deleted a user
+        $response->assertStatus(204);
+    }
+
+    /** @test */
+    public function can_admin_update_test_user() {
+        // Prep the acting user for test as ADMIN
+        $this->prepDatabaseAndAuthActingUser(self::ADMIN);
+
+        // Get a random user with user role 
+        $randUser = User::whereHas('role', function($query) {
+            $query->where('name','user');
+
+        })->inRandomOrder()->first();
+
+
+        // ACT:: send request to update a single user with payload
+        $response = $this->actingAs($this->user)->putJson('/api/users/'.$randUser->id, [
+            'name' => 'New Updated Name',
+        ]);
+
+        $response->assertStatus(200);
+
+
+    }
+
+
+    /** @test */
+
+    public function can_user_get_their_user_details() {
+        // Setup acting user
+        $this->prepDatabaseAndAuthActingUser(self::USER);
+        // Action
+        $response = $this->actingAs($this->user)->getJson('/api/user_details');
+        // Assertion
+        $response->assertStatus(200);
     }
 }

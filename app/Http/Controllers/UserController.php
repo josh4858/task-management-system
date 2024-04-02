@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Requests\UserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -41,11 +42,11 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UserRequest $request, $id)
+    public function update(UpdateUserRequest $request, $id)
     {
-        $validated = $request->validated();
+        $validatedData = $request->validated();
         $user = User::findOrFail($id); // Attempts to get the user
-        $user->update($validated->all()); // Update user with new data
+        $user->update($validatedData); // Update user with new data
         return response()->json($user,200); // Return reponse back
     }
 

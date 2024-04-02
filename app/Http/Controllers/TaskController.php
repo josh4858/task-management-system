@@ -15,7 +15,7 @@ class TaskController extends Controller
     public function index()
     {
         $tasks = Task::all();
-        return response()->json($tasks,201);
+        return response()->json($tasks,200);
     }
 
     /**
@@ -79,7 +79,7 @@ class TaskController extends Controller
         // Returns all the tasks for the auth user
         $user = $request->user();
         // Return all the tasks associated with the user.
-        $userTasks = Task::where("user_id", $user->id)->get();
+        $userTasks = $user->tasks();
         // Return sucess response
         return response()->json(['Tasks' => $userTasks],200);
 

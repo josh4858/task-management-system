@@ -7,6 +7,13 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->loadEnvironmentVariables();
+    }
     /**
      * Seed the application's database.
      */
