@@ -99,7 +99,7 @@ class UserControllerTest extends TestCase
         $response = $this->actingAs($this->user)->getJson('/api/users'); 
         
         // Assert: Check the response status and structure
-        $response->assertStatus(201);
+        $response->assertStatus(200);
 
         // Check the count of users after the test
         $userCountAfter = User::count();
@@ -165,6 +165,8 @@ class UserControllerTest extends TestCase
         $response = $this->actingAs($this->user)->putJson('/api/users/'.$randUser->id, [
             'name' => 'New Updated Name',
         ]);
+
+        $this->assertDatabaseHas('users',['name' =>'New Updated Name']);
 
         $response->assertStatus(200);
     }
