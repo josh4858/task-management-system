@@ -132,13 +132,21 @@ class UserControllerTest extends TestCase
         // Prep the acting user for test as ADMIN
         $this->prepDatabaseAndAuthActingUser(self::ADMIN);
 
-        // Get a random user with user role 
-        $randUser = User::whereHas('role',function($query) {
-            $query->where('name','user');
-        })->inRandomOrder()->first();
-        
+        // Create new test user to delete
+        $newTestUser = [
+            'name' => 'New Test User',
+            'email' => 'newtestuser@example.com',
+            'password' => 'password', // Assume your validation rules accept this format
+            'password_confirmation' => 'password', // Needed for registration validation
+            'role_id' => Role::inRandomOrder()->first()->id, // Assuming 2 is the role ID for 'User'
+        ];
+
+        // Create that user
+        $newUser = User::create($newTestUser);
+
         // ACT:: send delete request to delete a single user
-        $response = $this->actingAs($this->user)->deleteJson('/api/users/'.$randUser->id);
+        $response = $this->actingAs($this->user)->deleteJson('/api/users/' . $newUser->id);
+        
         // Assert response is 204 meaning sucessfully deleted a user
         $response->assertStatus(204);
     }
@@ -151,9 +159,7 @@ class UserControllerTest extends TestCase
         // Get a random user with user role 
         $randUser = User::whereHas('role', function($query) {
             $query->where('name','user');
-
         })->inRandomOrder()->first();
-
 
         // ACT:: send request to update a single user with payload
         $response = $this->actingAs($this->user)->putJson('/api/users/'.$randUser->id, [
@@ -161,13 +167,9 @@ class UserControllerTest extends TestCase
         ]);
 
         $response->assertStatus(200);
-
-
     }
 
-
     /** @test */
-
     public function can_user_get_their_user_details() {
         // Setup acting user
         $this->prepDatabaseAndAuthActingUser(self::USER);
@@ -176,4 +178,6 @@ class UserControllerTest extends TestCase
         // Assertion
         $response->assertStatus(200);
     }
+
+
 }

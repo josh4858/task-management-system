@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Models\Task;
+use App\Models\User;
 use App\Http\Requests\TaskRequest;
 
 class TaskController extends Controller
@@ -47,7 +48,7 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(TaskRequest $request, string $id)
     {
         // Validate the task data coming in
         $validatedData = $request->validated();
@@ -83,5 +84,37 @@ class TaskController extends Controller
         // Return sucess response
         return response()->json(['Tasks' => $userTasks],200);
 
+    }
+
+    // Admin controls for managing user tasks
+
+    public function createUserTask(TaskRequest $request, string $userId) {
+        // Validate new task data
+        $validatedTaskData = $request->validated();
+        // Find user in question to create task for
+        $user = User::findOrFail($userId);
+        // Create new task for that specific user
+        // Find the task for that user
+        $newCreatedTask = $user->tasks()->create($validatedTaskData);
+        // Return response
+        return response()->json(['Admin created task ' . $newCreatedTask->title  . " for user " . $user->name . " " => $newCreatedTask],201);
+
+    }
+
+    public function updateUserTask(TaskRequest $request, string $userId, string $taskId) {
+        // validate the request
+        $validatedData = $request->validated();
+        // find the user to update
+        $user = User::findOrFail($userId);
+        // find the task to update
+        $taskToUpdate = $user->tasks()->findOrFail($taskId);
+        // update the task for that specific user
+        $updatedTask = $taskToUpdate->update($validatedData);
+
+        // Return success response
+        return response()->json([
+            'message' => 'Task successfully updated',
+            'task' => $taskToUpdate,
+        ], 201);
     }
 }

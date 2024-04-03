@@ -84,14 +84,15 @@ class TaskControllerTest extends TestCase
         $response->assertStatus(200);
 
     }
+        // Can Admin create a single task for a specific user
 
-    // Can Admin update a single task for a specific user
-    public function can_admin_update_single_task_for_specific_user() {
+    /** @test */
+    public function can_admin_create_single_task_for_specific_user() {
         // Prep
         $this->prepDatabaseAndAuthActingUser(self::ADMIN);
 
-        $updatedTask = [
-            'name' => "This is a test task",
+        $newTaskData = [
+            'title' => "This is a New task",
             'description' => "This is a test task description",
             'completed' => 0,
         ];
@@ -101,22 +102,47 @@ class TaskControllerTest extends TestCase
             $query->where('name', 'user');
         })->inRandomOrder()->first();
 
+
         // Action
-        $response = $this->actingAs($this->user)->putJson('/api/tasks/'. $randUser->id, $updatedTask);
+        $response = $this->actingAs($this->user)->postJson('/api/users/'. $randUser->id. '/tasks/', $newTaskData);
 
         // Assert
-        $response->assertStatus(200);
-        $response->assertHasInDatabase();
+        $response->assertStatus(201);
 
-    }
+ }
 
-    // Can Admin create a single task for a specific user
-    public function can_admin_create_single_task_for_specific_user() {
+    // Can Admin update a single task for a specific user
+    /** @test */
+    public function can_admin_update_single_task_for_specific_user() {
         // Prep
         $this->prepDatabaseAndAuthActingUser(self::ADMIN);
+        
+        // Get random user 
+        $randUser = User::whereHas('role', function($query) {
+            $query->where('name', 'user');
+        })->inRandomOrder()->first();
+
+        // Create a task for the user
+        $task = $randUser->tasks()->create([
+            'title' => "Old task name",
+            'description' => "Old task description",
+            'completed' => 0,
+        ]);
+
+        // Updated task data
+        $updatedTaskData = [
+            'title' => "This is a updated task title",
+            'description' => "This is a updated task description",
+            'completed' => 0,
+        ];
+
+        // Action
+        $response = $this->actingAs($this->user)->putJson('/api/users/'. $randUser->id .'/tasks/'. $task->id, $updatedTaskData);
+
+        // Assert
+        $response->assertStatus(201); // Check if update was successful
 
     }
-
 
 
 

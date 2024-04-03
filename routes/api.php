@@ -23,33 +23,44 @@ Route::group(['middleware' => ['auth:api']], function() {
 
     // Role API routes (Only Admins are authorised to use these routes)
     Route::group(['middleware' => ['checkRole:admin']], function () {
+        
+        // Only Admins can manage roles
         Route::get('/roles',[RoleController::class,'index']);
         Route::post('/roles',[RoleController::class,'store']);
         Route::get('/roles/{id}',[RoleController::class,'show']);
         Route::put('/roles/{id}',[RoleController::class,'update']);
         Route::delete('/roles/{id}',[RoleController::class,'destroy']);
     
-        // Protected User Routes Admin only
+        // Only Admin can manage users
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
         Route::get('/users/{id}',[UserController::class,'show']);
         Route::put('/users/{id}',[UserController::class,'update']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
-        // To use these routes you have to be authenticated 
-        Route::get('/tasks',[TaskController::class,'index']);
-        Route::post('/tasks',[TaskController::class,'store']);
-        Route::get('/tasks/{id}',[TaskController::class,'show']);
-        Route::put('/tasks/{id}',[TaskController::class,'update']);
-        Route::delete('/tasks/{id}',[TaskController::class,'destroy']);
+        // Admin can update specific task for a specific user
+        Route::put('/users/{id}/tasks/{task_id}',[TaskController::class,'updateUserTask']);
+        // Admin can create specific task for a specific user
+        Route::post('/users/{id}/tasks',[TaskController::class, 'createUserTask']);
+        // Admin can delete specific task for a specific user
+
+        // Admin can get details of specific task for a specific user
+
+        // Admin can get all tasks of specific user
+
 
     });
 
-    Route::group(['middleware' => ['checkRole:user']], function() {
-        Route::get('/user_details',[UserController::class,'userDetails']);
-        Route::get('/user_tasks',[TaskController::class,'userTasks']);
+    // To use these routes you have to be authenticated and are not role dependant
+    Route::get('/tasks',[TaskController::class,'index']);
+    Route::post('/tasks',[TaskController::class,'store']);
+    Route::get('/tasks/{id}',[TaskController::class,'show']);
+    Route::put('/tasks/{id}',[TaskController::class,'update']);
+    Route::delete('/tasks/{id}',[TaskController::class,'destroy']);
 
-    });
+    Route::get('/user_details',[UserController::class,'userDetails']);
+    Route::get('/user_tasks',[TaskController::class,'userTasks']);
+
 });
 
 // Unprotected routes which use will have throttles to prevent abuse (60 requests per min)
