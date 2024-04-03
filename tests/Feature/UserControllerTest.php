@@ -43,7 +43,7 @@ class UserControllerTest extends TestCase
     
 
     /** @test */
-    public function user_can_register_successfully()
+    public function can_register_user_successfully()
     {
         // Seed the roles table before the test
         $this->seed(RoleSeeder::class);

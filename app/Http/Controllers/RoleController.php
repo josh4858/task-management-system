@@ -14,7 +14,9 @@ class RoleController extends Controller
     public function index()
     {
         // Returns all roles for Admin to see
-        return Role::all();
+        $roles = Role::all();
+
+        return response()->json($roles, 200);
     }
 
     /**
@@ -25,7 +27,7 @@ class RoleController extends Controller
         // Validate the data
         $validatedData = $request->validated();
         // Create a new role in the Role table
-        $newRole = Role::create($validatedData->all());
+        $newRole = Role::create($validatedData);
         // Return success response
         return response()->json($newRole,201);
     }
@@ -51,7 +53,8 @@ class RoleController extends Controller
         // Attempt to find role by its id to update
         $roleToUpdate = Role::findOrFail($id);
         // Update the role with the new validated data
-        $roleToUpdate->update($validatedData->all());
+        $roleToUpdate->update($validatedData);
+
         // Return the response
         return response()->json([
                 'message' => 'Successfully updated role!',

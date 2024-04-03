@@ -71,11 +71,17 @@ class TaskControllerTest extends TestCase
         // Prep
         $this->prepDatabaseAndAuthActingUser(self::ADMIN);
 
-        // Get a random test user
         // Get random seeded admin user 
         $randUser = User::whereHas('role', function($query) {
             $query->where('name','admin');
         })->inRandomOrder()->first();
+
+        // Add some tasks for that user
+        $randUser->tasks()->create([
+            'title' => "TestTask",
+            'description' => "Test task description",
+            'completed' => 0,
+        ]);
 
         // Action
         $response = $this->actingAs($this->user)->getJson('/api/tasks/'.$randUser->id);
@@ -144,6 +150,84 @@ class TaskControllerTest extends TestCase
 
     }
 
+    /** @test */
+    public function can_admin_delete_specific_task_for_specific_user() {
+        // Prepare database and acting user
+        $this->prepDatabaseAndAuthActingUser(self::ADMIN);
 
+        // Get a random user
+        $user = User::whereHas('role',function($query) {
+            $query->where('name','user');
+        })->inRandomOrder()->first();
+
+        // Create dummy task data
+        $taskData = [
+            'title' => "Test task",
+            'description' => "Test description",
+            'completed' => 0
+        ];
+
+        // Create a task for that random user
+        $task = $user->tasks()->create($taskData);
+        // Act
+        $response = $this->actingAs($this->user)->deleteJson('/api/users/'.$user->id.'/tasks/'.$task->id);
+
+        // Assert
+        $response->assertStatus(201);
+    }
+
+        /** @test */
+        public function can_admin_get_specific_task_for_specific_user() {
+            // Prepare database and acting user
+            $this->prepDatabaseAndAuthActingUser(self::ADMIN);
+    
+            // Get a random user
+            $user = User::whereHas('role',function($query) {
+                $query->where('name','user');
+            })->inRandomOrder()->first();
+    
+            // Create dummy task data
+            $taskData = [
+                'title' => "Test task",
+                'description' => "Test description",
+                'completed' => 0
+            ];
+    
+            // Create a task for that random user
+            $task = $user->tasks()->create($taskData);
+            // Act
+            $response = $this->actingAs($this->user)->getJson('/api/users/'.$user->id.'/tasks/'.$task->id);
+    
+            // Assert
+            $response->assertStatus(201);
+        }
+
+        
+        /** @test */
+        public function can_admin_get_all_tasks_for_specific_user() {
+            // Prepare database and acting user
+            $this->prepDatabaseAndAuthActingUser(self::ADMIN);
+    
+            // Get a random user
+            $user = User::whereHas('role',function($query) {
+                $query->where('name','user');
+            })->inRandomOrder()->first();
+    
+            // Create dummy task data
+            $taskData = [
+                'title' => "Test task",
+                'description' => "Test description",
+                'completed' => 0
+            ];
+    
+            // Create a task for that random user
+            $task = $user->tasks()->create($taskData);
+
+            // Act
+            $response = $this->actingAs($this->user)->getJson('/api/users/'.$user->id.'/tasks/');
+    
+            // Assert
+            $response->assertStatus(201);
+        }
 
 }

@@ -31,23 +31,23 @@ Route::group(['middleware' => ['auth:api']], function() {
         Route::put('/roles/{id}',[RoleController::class,'update']);
         Route::delete('/roles/{id}',[RoleController::class,'destroy']);
     
-        // Only Admin can manage users
+        // ADMIN MANAGEMENT CONTROLS
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
         Route::get('/users/{id}',[UserController::class,'show']);
         Route::put('/users/{id}',[UserController::class,'update']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
-
+        
+        // Admin can get details of specific task for a specific user
+        Route::get('/users/{id}/tasks/{task_id}', [TaskController::class, 'showTask']);
+        // Admin can get all tasks of specific user
+        Route::get('/users/{id}/tasks',[TaskController::class, 'showAllTasks']);
         // Admin can update specific task for a specific user
         Route::put('/users/{id}/tasks/{task_id}',[TaskController::class,'updateUserTask']);
         // Admin can create specific task for a specific user
         Route::post('/users/{id}/tasks',[TaskController::class, 'createUserTask']);
         // Admin can delete specific task for a specific user
-
-        // Admin can get details of specific task for a specific user
-
-        // Admin can get all tasks of specific user
-
+        Route::delete('/users/{id}/tasks/{task_id}', [TaskController::class, 'deleteUserTask']);
 
     });
 
@@ -57,7 +57,7 @@ Route::group(['middleware' => ['auth:api']], function() {
     Route::get('/tasks/{id}',[TaskController::class,'show']);
     Route::put('/tasks/{id}',[TaskController::class,'update']);
     Route::delete('/tasks/{id}',[TaskController::class,'destroy']);
-
+    // Get specific details associated with user (authenticated user)
     Route::get('/user_details',[UserController::class,'userDetails']);
     Route::get('/user_tasks',[TaskController::class,'userTasks']);
 

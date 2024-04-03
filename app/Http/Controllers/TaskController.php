@@ -117,4 +117,45 @@ class TaskController extends Controller
             'task' => $taskToUpdate,
         ], 201);
     }
+
+    public function deleteUserTask(string $userId, string $taskId) {
+        // find user
+        $user = User::findOrFail($userId);
+        // find the task of that user
+        $task = $user->tasks()->where('id',$taskId)->first();
+        // return response status
+
+        return response()->json(
+            [
+                'message' => "Admin successfully deleted user task",
+                'task' => $task,
+            ],
+            201);
+    }
+
+    public function showTask(string $userId, string $taskId) {
+        // Find user
+        $user = User::findOrFail($userId);
+        // Find first task with that id you are looking for
+        $task = $user->tasks()->where('id',$taskId)->first();
+
+        // Return response
+        return response()->json([
+            'message' => "Admin successfully found user task",
+            'task' => $task,
+        ],201);
+    }
+
+    public function showAllTasks(string $userId) {
+        // Find user
+        $user = User::findOrFail($userId);
+        // Get all of the tasks for the user
+        $tasks = $user->tasks()->get();
+
+        // Return response
+        return response()->json([
+            'message' => "Admin successfully found all user tasks",
+            'tasks' => $tasks,
+        ],201);
+    }
 }
